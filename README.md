@@ -6,15 +6,11 @@
 
 ## Requirements
 ```
+conda create -n tta-text python=3.10.12  
 conda install pytorch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
 pip install accelerate -U
 pip install 'numpy<2' transformers==4.30.2 dataset==1.6.2 datasets==2.14.6 nltk==3.8.1 loralib==0.1.2 absl-py==2.0.0
 ```
-* Python 3.10.12
-* PyTorch 2.1.0
-* Transformers 4.30.2
-* datasets
-* CUDA 12.2
 
 ## Preparation
 
