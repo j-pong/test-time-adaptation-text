@@ -130,12 +130,12 @@ python src/run_t5.py \
    --do_train \
    --do_predict \
    --predict_with_generate \
-   --model_name_or_path your_t5_model_path \
+   --model_name_or_path inital_model/t5-large \
    --data_dir CL_Benchmark \
    --task_order {task_order} \
    --task_config_dir configs/{run_name}_configs/{dataset_list[0]} \
    --output_dir logs_and_outputs/{run_name}/outputs/1-{dataset_list[0]} \
-   --per_device_train_batch_size 16 \
+   --per_device_train_batch_size 8 \
    --per_device_eval_batch_size 128 \
    --gradient_accumulation_steps 2 \
    --learning_rate {learning_rate} \
@@ -183,7 +183,7 @@ python src/run_t5.py \
    --do_train \
    --do_predict \
    --predict_with_generate \
-   --model_name_or_path your_t5_model_path \
+   --model_name_or_path inital_model/t5-large \
    --load_checkpoint_from logs_and_outputs/{run_name}/outputs/{idx+1}-{dataset_list[idx]}/saved_weights/trans_input.pt \
    --previous_lora_path {previous_lora_path} \
    --previous_prompt_key_path logs_and_outputs/{run_name}/outputs/{idx+1}-{dataset_list[idx]}/saved_weights/prompts_keys_till_now.pt \
@@ -192,7 +192,7 @@ python src/run_t5.py \
    --gen_data_dir generated_data/lora_gen_long_t5 \
    --task_config_dir configs/{run_name}_configs/{dataset_list[idx+1]} \
    --output_dir logs_and_outputs/{run_name}/outputs/{idx+2}-{dataset_list[idx+1]} \
-   --per_device_train_batch_size 16 \
+   --per_device_train_batch_size 8 \
    --per_device_eval_batch_size 128 \
    --gradient_accumulation_steps 2 \
    --learning_rate {learning_rate} \

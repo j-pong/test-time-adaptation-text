@@ -5,9 +5,16 @@
 <img src="https://img.shields.io/badge/Venue-ACL--24-278ea5" alt="venue"/> <img src="https://img.shields.io/badge/Status-Accepted-success" alt="status"/> <img src="https://img.shields.io/badge/Issues-Welcome-red">
 
 ## Requirements
+```
+conda install pytorch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
+pip install 'numpy<2'
+pip install dataset==1.6.2
+pip install datasets==2.14.6
+```
 * Python 3.10.12
 * PyTorch 2.1.0
 * Transformers 4.30.2
+* datasets
 * CUDA 12.2
 
 ## Preparation
