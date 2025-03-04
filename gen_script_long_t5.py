@@ -136,9 +136,9 @@ python src/run_t5.py \
    --task_order {task_order} \
    --task_config_dir configs/{run_name}_configs/{dataset_list[0]} \
    --output_dir logs_and_outputs/{run_name}/outputs/1-{dataset_list[0]} \
-   --per_device_train_batch_size 8 \
+   --per_device_train_batch_size 4 \
    --per_device_eval_batch_size 128 \
-   --gradient_accumulation_steps 2 \
+   --gradient_accumulation_steps 8 \
    --learning_rate {learning_rate} \
    --num_train_epochs {num_train_epochs} \
    --bf16 \
@@ -193,9 +193,9 @@ python src/run_t5.py \
    --gen_data_dir generated_data/lora_gen_long_t5 \
    --task_config_dir configs/{run_name}_configs/{dataset_list[idx+1]} \
    --output_dir logs_and_outputs/{run_name}/outputs/{idx+2}-{dataset_list[idx+1]} \
-   --per_device_train_batch_size 8 \
+   --per_device_train_batch_size 4 \
    --per_device_eval_batch_size 128 \
-   --gradient_accumulation_steps 2 \
+   --gradient_accumulation_steps 8 \
    --learning_rate {learning_rate} \
    --num_train_epochs {num_train_epochs}\
    --bf16 \
