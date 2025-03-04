@@ -2,7 +2,7 @@ __pycache__
 
 inital_model
 
-your_job_name.sh
+your_job_name*
 configs/your_job_name_configs
 
 logs_and_outputs

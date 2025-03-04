@@ -71,13 +71,16 @@ import pathlib
 import numpy as np
 from copy import deepcopy
 
-run_name = f"your_job_name"
+learning_rate = 3e-4
+gpu_num=0
+run_name = f"your_job_name_lr{learning_rate}_gn{gpu_num}"
+
 lora_r = 4
 lora_alpha = 32
 lora_dropout = 0.
 kl_ratio = 0.5
 attn_temperature = 1
-learning_rate = 3e-4
+num_train_epochs = 1
 
 history_config=[]
 for one_data_name in dataset_list:
@@ -115,7 +118,7 @@ export CUDA_DEVICE_ORDER="PCI_BUS_ID"
 
 port=$(shuf -i25000-30000 -n1)  
 
-CUDA_VISIBLE_DEVICES=0 python src/run_t5.py \
+CUDA_VISIBLE_DEVICES={gpu_num} python src/run_t5.py \
    --do_train \
    --do_predict \
    --predict_with_generate \
@@ -128,7 +131,7 @@ CUDA_VISIBLE_DEVICES=0 python src/run_t5.py \
    --per_device_eval_batch_size 128 \
    --gradient_accumulation_steps 4 \
    --learning_rate {learning_rate} \
-   --num_train_epochs 100 \
+   --num_train_epochs {num_train_epochs} \
    --bf16 \
    --run_name {run_name} \
    --max_source_length 512 \
@@ -163,7 +166,7 @@ for idx in range(len(dataset_list)-1):
     previous_lora_path = ','.join(previous_lora_path_list)
     sh_str+=rf'''
 
-CUDA_VISIBLE_DEVICES=0 python src/run_t5.py \
+CUDA_VISIBLE_DEVICES={gpu_num} python src/run_t5.py \
    --do_train \
    --do_predict \
    --predict_with_generate \
@@ -180,7 +183,7 @@ CUDA_VISIBLE_DEVICES=0 python src/run_t5.py \
    --per_device_eval_batch_size 128 \
    --gradient_accumulation_steps 4 \
    --learning_rate {learning_rate} \
-   --num_train_epochs 100 \
+   --num_train_epochs {num_train_epochs} \
    --bf16 \
    --run_name {run_name} \
    --max_source_length 512 \

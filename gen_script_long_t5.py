@@ -75,15 +75,16 @@ import pathlib
 import numpy as np
 from copy import deepcopy
 
-run_name = f"your_job_name"
+learning_rate = 3e-4
+run_name = f"your_job_name_lr{learning_rate}"
+
 lora_r = 8
 lora_alpha = 32
 lora_dropout = 0.
 kl_ratio = 0.1
 attn_temperature = 1
-learning_rate = 3e-4
 replay_after_n_epoch = 0
-num_train_epochs = 10
+num_train_epochs = 1
 
  ############# Dataset ##############
 history_config=[]
