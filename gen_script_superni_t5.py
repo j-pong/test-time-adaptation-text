@@ -71,150 +71,151 @@ import pathlib
 import numpy as np
 from copy import deepcopy
 
-learning_rate = 3e-4
-gpu_num=0
-run_name = f"your_job_name_lr{learning_rate}_gn{gpu_num}"
+lrs = [1e-4, 3e-4, 5e-4, 7e-4]
+for i, learning_rate in enumerate(lrs):
+    gpu_num=i
+    run_name = f"run_superni_ep1_lr{learning_rate}_gn{gpu_num}"
 
-lora_r = 4
-lora_alpha = 32
-lora_dropout = 0.
-kl_ratio = 0.5
-attn_temperature = 1
-num_train_epochs = 1
+    lora_r = 4
+    lora_alpha = 32
+    lora_dropout = 0.
+    kl_ratio = 0.5
+    attn_temperature = 1
+    num_train_epochs = 1
 
-history_config=[]
-for one_data_name in dataset_list:
+    history_config=[]
+    for one_data_name in dataset_list:
 
-    pathlib.Path(f'./configs/{run_name}_configs/{one_data_name}').mkdir(parents=True, exist_ok=True)
+        pathlib.Path(f'./configs/{run_name}_configs/{one_data_name}').mkdir(parents=True, exist_ok=True)
 
-    config={
-        "sampling strategy": "full",
-        "dataset name": f"{one_data_name}"
-    } 
-    history_config.append(config)
+        config={
+            "sampling strategy": "full",
+            "dataset name": f"{one_data_name}"
+        } 
+        history_config.append(config)
 
-    dev_config=deepcopy(config_template)
-    dev_config['SuperNI'].append(config)
-    write_json(f'./configs/{run_name}_configs/{one_data_name}/dev_tasks.json', dev_config)
-    
-    train_config=deepcopy(config_template)
-    train_config['SuperNI'].append(config)
-    write_json(f'./configs/{run_name}_configs/{one_data_name}/train_tasks.json', train_config)
+        dev_config=deepcopy(config_template)
+        dev_config['SuperNI'].append(config)
+        write_json(f'./configs/{run_name}_configs/{one_data_name}/dev_tasks.json', dev_config)
+        
+        train_config=deepcopy(config_template)
+        train_config['SuperNI'].append(config)
+        write_json(f'./configs/{run_name}_configs/{one_data_name}/train_tasks.json', train_config)
 
-    test_config=deepcopy(config_template)
-    test_config['SuperNI'].extend(history_config)
-    write_json(f'./configs/{run_name}_configs/{one_data_name}/test_tasks.json', test_config)
+        test_config=deepcopy(config_template)
+        test_config['SuperNI'].extend(history_config)
+        write_json(f'./configs/{run_name}_configs/{one_data_name}/test_tasks.json', test_config)
 
-sh_str=rf'''#!/bin/bash
-#SBATCH -J cl                           
-#SBATCH -o cl-%j.out                       
-#SBATCH -p compute 
-#SBATCH -N 1                           
-#SBATCH -t 20:00:00   
-#SBATCH --mem 128G 
-#SBATCH --gres=gpu:a100-sxm4-80gb:1  
+    sh_str=rf'''#!/bin/bash
+    #SBATCH -J cl                           
+    #SBATCH -o cl-%j.out                       
+    #SBATCH -p compute 
+    #SBATCH -N 1                           
+    #SBATCH -t 20:00:00   
+    #SBATCH --mem 128G 
+    #SBATCH --gres=gpu:a100-sxm4-80gb:1  
 
-export CUDA_DEVICE_ORDER="PCI_BUS_ID"
+    export CUDA_DEVICE_ORDER="PCI_BUS_ID"
 
-port=$(shuf -i25000-30000 -n1)  
+    port=$(shuf -i25000-30000 -n1)  
 
-CUDA_VISIBLE_DEVICES={gpu_num} python src/run_t5.py \
-   --do_train \
-   --do_predict \
-   --predict_with_generate \
-   --model_name_or_path inital_model/t5-large \
-   --data_dir CL_Benchmark \
-   --task_order {task_order} \
-   --task_config_dir configs/{run_name}_configs/{dataset_list[0]} \
-   --output_dir logs_and_outputs/{run_name}/outputs/1-{dataset_list[0]} \
-   --per_device_train_batch_size 8 \
-   --per_device_eval_batch_size 128 \
-   --gradient_accumulation_steps 4 \
-   --learning_rate {learning_rate} \
-   --num_train_epochs {num_train_epochs} \
-   --bf16 \
-   --run_name {run_name} \
-   --max_source_length 512 \
-   --max_target_length 50 \
-   --generation_max_length 50 \
-   --add_task_name False \
-   --add_dataset_name False \
-   --overwrite_output_dir \
-   --overwrite_cache \
-   --lr_scheduler_type constant \
-   --warmup_steps 0 \
-   --logging_strategy steps \
-   --logging_steps 10 \
-   --metric_for_best_model eval_rougeL \
-   --evaluation_strategy steps \
-   --save_strategy steps \
-   --save_total_limit 1 \
-   --lora_r {lora_r} \
-   --lora_alpha {lora_alpha} \
-   --lora_dropout {lora_dropout} \
-   --load_best_model_at_end \
-   --data_replay_freq -1 \
-   --replay_after_n_epoch 0 \
-   --kl_ratio {kl_ratio} \
-   --attn_temperature {attn_temperature}
-'''
+    CUDA_VISIBLE_DEVICES={gpu_num} python src/run_t5.py \
+    --do_train \
+    --do_predict \
+    --predict_with_generate \
+    --model_name_or_path inital_model/t5-large \
+    --data_dir CL_Benchmark \
+    --task_order {task_order} \
+    --task_config_dir configs/{run_name}_configs/{dataset_list[0]} \
+    --output_dir logs_and_outputs/{run_name}/outputs/1-{dataset_list[0]} \
+    --per_device_train_batch_size 4 \
+    --per_device_eval_batch_size 64 \
+    --gradient_accumulation_steps 8 \
+    --learning_rate {learning_rate} \
+    --num_train_epochs {num_train_epochs} \
+    --bf16 \
+    --run_name {run_name} \
+    --max_source_length 512 \
+    --max_target_length 50 \
+    --generation_max_length 50 \
+    --add_task_name False \
+    --add_dataset_name False \
+    --overwrite_output_dir \
+    --overwrite_cache \
+    --lr_scheduler_type constant \
+    --warmup_steps 0 \
+    --logging_strategy steps \
+    --logging_steps 10 \
+    --metric_for_best_model eval_rougeL \
+    --evaluation_strategy steps \
+    --save_strategy steps \
+    --save_total_limit 1 \
+    --lora_r {lora_r} \
+    --lora_alpha {lora_alpha} \
+    --lora_dropout {lora_dropout} \
+    --load_best_model_at_end \
+    --data_replay_freq -1 \
+    --replay_after_n_epoch 0 \
+    --kl_ratio {kl_ratio} \
+    --attn_temperature {attn_temperature}
+    '''
 
-previous_lora_path_list = []
-for idx in range(len(dataset_list)-1):
+    previous_lora_path_list = []
+    for idx in range(len(dataset_list)-1):
 
-    previous_lora_path_list.append(f"logs_and_outputs/{run_name}/outputs/{idx+1}-{dataset_list[idx]}/saved_weights")
-    previous_lora_path = ','.join(previous_lora_path_list)
+        previous_lora_path_list.append(f"logs_and_outputs/{run_name}/outputs/{idx+1}-{dataset_list[idx]}/saved_weights")
+        previous_lora_path = ','.join(previous_lora_path_list)
+        sh_str+=rf'''
+
+    CUDA_VISIBLE_DEVICES={gpu_num} python src/run_t5.py \
+    --do_train \
+    --do_predict \
+    --predict_with_generate \
+    --model_name_or_path inital_model/t5-large \
+    --load_checkpoint_from logs_and_outputs/{run_name}/outputs/{idx+1}-{dataset_list[idx]}/saved_weights/trans_input.pt \
+    --previous_lora_path {previous_lora_path} \
+    --previous_prompt_key_path logs_and_outputs/{run_name}/outputs/{idx+1}-{dataset_list[idx]}/saved_weights/prompts_keys_till_now.pt \
+    --data_dir CL_Benchmark \
+    --task_order {task_order} \
+    --gen_data_dir generated_data/lora_gen_superni_t5 \
+    --task_config_dir configs/{run_name}_configs/{dataset_list[idx+1]} \
+    --output_dir logs_and_outputs/{run_name}/outputs/{idx+2}-{dataset_list[idx+1]} \
+    --per_device_train_batch_size 4 \
+    --per_device_eval_batch_size 64 \
+    --gradient_accumulation_steps 8 \
+    --learning_rate {learning_rate} \
+    --num_train_epochs {num_train_epochs} \
+    --bf16 \
+    --run_name {run_name} \
+    --max_source_length 512 \
+    --max_target_length 50 \
+    --generation_max_length 50 \
+    --add_task_name False \
+    --add_dataset_name False \
+    --overwrite_output_dir \
+    --overwrite_cache \
+    --lr_scheduler_type constant \
+    --warmup_steps 0 \
+    --logging_strategy steps \
+    --logging_steps 10 \
+    --metric_for_best_model eval_rougeL_for_{dataset_list[idx+1]} \
+    --evaluation_strategy steps \
+    --save_strategy steps \
+    --save_total_limit 1 \
+    --load_best_model_at_end \
+    --lora_r {lora_r} \
+    --lora_alpha {lora_alpha} \
+    --lora_dropout {lora_dropout} \
+    --add_instruction_replay \
+    --data_replay_freq 1 \
+    --replay_after_n_epoch 0 \
+    --kl_ratio {kl_ratio} \
+    --attn_temperature {attn_temperature}
+    '''
+        
     sh_str+=rf'''
-
-CUDA_VISIBLE_DEVICES={gpu_num} python src/run_t5.py \
-   --do_train \
-   --do_predict \
-   --predict_with_generate \
-   --model_name_or_path inital_model/t5-large \
-   --load_checkpoint_from logs_and_outputs/{run_name}/outputs/{idx+1}-{dataset_list[idx]}/saved_weights/trans_input.pt \
-   --previous_lora_path {previous_lora_path} \
-   --previous_prompt_key_path logs_and_outputs/{run_name}/outputs/{idx+1}-{dataset_list[idx]}/saved_weights/prompts_keys_till_now.pt \
-   --data_dir CL_Benchmark \
-   --task_order {task_order} \
-   --gen_data_dir generated_data/lora_gen_superni_t5 \
-   --task_config_dir configs/{run_name}_configs/{dataset_list[idx+1]} \
-   --output_dir logs_and_outputs/{run_name}/outputs/{idx+2}-{dataset_list[idx+1]} \
-   --per_device_train_batch_size 8 \
-   --per_device_eval_batch_size 128 \
-   --gradient_accumulation_steps 4 \
-   --learning_rate {learning_rate} \
-   --num_train_epochs {num_train_epochs} \
-   --bf16 \
-   --run_name {run_name} \
-   --max_source_length 512 \
-   --max_target_length 50 \
-   --generation_max_length 50 \
-   --add_task_name False \
-   --add_dataset_name False \
-   --overwrite_output_dir \
-   --overwrite_cache \
-   --lr_scheduler_type constant \
-   --warmup_steps 0 \
-   --logging_strategy steps \
-   --logging_steps 10 \
-   --metric_for_best_model eval_rougeL_for_{dataset_list[idx+1]} \
-   --evaluation_strategy steps \
-   --save_strategy steps \
-   --save_total_limit 1 \
-   --load_best_model_at_end \
-   --lora_r {lora_r} \
-   --lora_alpha {lora_alpha} \
-   --lora_dropout {lora_dropout} \
-   --add_instruction_replay \
-   --data_replay_freq 1 \
-   --replay_after_n_epoch 0 \
-   --kl_ratio {kl_ratio} \
-   --attn_temperature {attn_temperature}
-'''
-    
-sh_str+=rf'''
-python score.py {run_name} single_train_results_path
-'''
-    
-with open(f'{run_name}.sh', 'w') as f:
-    f.write(sh_str)
+    python score.py {run_name} single_train_results_path
+    '''
+        
+    with open(f'{run_name}.sh', 'w') as f:
+        f.write(sh_str)
