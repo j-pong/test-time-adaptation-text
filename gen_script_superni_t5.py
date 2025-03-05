@@ -71,17 +71,39 @@ import pathlib
 import numpy as np
 from copy import deepcopy
 
+num_train_epochs=1
+
+lora_alpha = 32
+method="seqlora"
+if method == "seqlora":
+    lora_r = 8
+    lora_dropout = 0.1
+    
+    data_replay_freq = -1
+    kl_ratio = 0.
+    attn_temperature = -1
+elif method == "olora":
+    lora_r = 8
+    lora_dropout = 0.1
+    lamda_o=0.005
+    
+    data_replay_freq = -1
+    kl_ratio = 0.
+    attn_temperature = -1
+elif method == "sapt":
+    lora_r = 4
+    lora_dropout = 0.
+    
+    data_replay_freq = 1
+    kl_ratio = 0.5
+    attn_temperature = 1
+else:
+    raise NotImplementedError
+
 lrs = [1e-4, 3e-4, 5e-4, 7e-4]
 for i, learning_rate in enumerate(lrs):
     gpu_num=i
-    run_name = f"run_superni_ep1_lr{learning_rate}_gn{gpu_num}"
-
-    lora_r = 4
-    lora_alpha = 32
-    lora_dropout = 0.
-    kl_ratio = 0.5
-    attn_temperature = 1
-    num_train_epochs = 1
+    run_name = f"temp_{method}_ep{num_train_epochs}_lr{learning_rate}_gn{gpu_num}"
 
     history_config=[]
     for one_data_name in dataset_list:
@@ -207,15 +229,16 @@ for i, learning_rate in enumerate(lrs):
     --lora_alpha {lora_alpha} \
     --lora_dropout {lora_dropout} \
     --add_instruction_replay \
-    --data_replay_freq 1 \
+    --data_replay_freq {data_replay_freq} \
     --replay_after_n_epoch 0 \
     --kl_ratio {kl_ratio} \
     --attn_temperature {attn_temperature}
     '''
         
     sh_str+=rf'''
-    python score.py {run_name} single_train_results_path
+    python score.py {run_name} {run_name}
     '''
         
     with open(f'{run_name}.sh', 'w') as f:
         f.write(sh_str)
+        print(f'{run_name}.sh')

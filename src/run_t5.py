@@ -442,7 +442,7 @@ def main():
     if model_args.previous_lora_path:
         previous_lora_list = model_args.previous_lora_path.split(',')
         previous_lora_list.reverse()
-        print(previous_lora_list)
+        # print(previous_lora_list)
         print("----------Loading Previous LoRA Weights----------")
         for i, path in enumerate(previous_lora_list):
             lora_A = torch.load(os.path.join(path, "lora_weights_A.pt"))
@@ -498,7 +498,7 @@ def main():
     for n, p in model.named_parameters():
         if p.requires_grad:
         # if any([x in n for x in ["router", "A", "z"]]):
-            print(n)
+            # print(n)
             total_params += p.numel()
         params += p.numel()
 
@@ -600,15 +600,15 @@ def main():
                     num_examples=data_args.num_examples)
 
                 replay_dataset_dict[task_order[idx]] = raw_datasets_gen["train"]
-                print(raw_datasets_gen)
+                # print(raw_datasets_gen)
 
             replay_label_dict = {}
             for idx in range(cur_task_id):
                 with open(os.path.join("logs_and_outputs/" + training_args.run_name + "/outputs/", str(idx+1)+"-"+task_order[idx], "saved_weights", "attention_weights.pkl"), 'rb') as f:
                     attn_weights = pickle.load(f)
                 replay_label_dict[task_order[idx]] = torch.cat([torch.tensor([0.] * (cur_task_id - idx)), torch.tensor(attn_weights)], dim=0).to(dtype=torch.bfloat16, device='cuda')
-            print(replay_label_dict)
-        print('-'*50)
+            # print(replay_label_dict)
+        # print('-'*50)
 
     # Metric
     def compute_rouge_metrics(dataset, preds, save_prefix=None):
@@ -661,7 +661,7 @@ def main():
     )
     
     trainer.is_deepspeed_enabled = False
-    print("is_deepspeed_enabled", trainer.is_deepspeed_enabled)
+    # print("is_deepspeed_enabled", trainer.is_deepspeed_enabled)
 
     all_metrics = {"run_name": training_args.run_name}
 

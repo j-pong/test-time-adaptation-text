@@ -229,7 +229,7 @@ sleep 5
 '''
 
 sh_str+=rf'''
-python score.py {run_name} single_train_results_path
+python score.py {run_name} {run_name}
 '''
     
 with open(f'{run_name}.sh', 'w') as f:

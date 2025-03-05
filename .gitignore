@@ -6,4 +6,7 @@ your_job_name*
 configs/your_job_name_configs
 
 logs_and_outputs
-configs/run_*
+configs/temp_*
+results/*
+temp*
+src/ref

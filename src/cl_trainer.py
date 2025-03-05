@@ -87,6 +87,43 @@ class Trainer(Seq2SeqTrainer):
                         pin_memory=False,
                         worker_init_fn=seed_worker)
             self.replay_iterator_dict = create_memory_replay_generators(task_order[cur_task_id], task_order, self.replay_dataloader_dict)
+        
+        if model.prompt_config["previous_lora_path"]:
+            self.previous_lora_dict = self._extract_lora_weights_with_names(model)
+        else:
+            self.previous_lora_dict = None
+    
+    def _extract_lora_weights_with_names(self, model):
+        lora_weights_dict = {}
+
+        # Extract from Encoder
+        for i, block in enumerate(model.encoder.block):
+            self_attn = block.layer[0].SelfAttention
+            if hasattr(self_attn, "previous_lora_weights_q") and hasattr(self_attn, "previous_lora_weights_v"):
+                for j, lora_layer in enumerate(self_attn.previous_lora_weights_q):
+                    lora_weights_dict[f"encoder.block.{i}.layer.0.SelfAttention.lora_q.lora_A"] = lora_layer.lora_A
+
+                for j, lora_layer in enumerate(self_attn.previous_lora_weights_v):
+                    lora_weights_dict[f"encoder.block.{i}.layer.0.SelfAttention.lora_v.lora_A"] = lora_layer.lora_A
+
+        # Extract from Decoder
+        for i, block in enumerate(model.decoder.block):
+            self_attn = block.layer[0].SelfAttention
+            if hasattr(self_attn, "previous_lora_weights_q") and hasattr(self_attn, "previous_lora_weights_v"):
+                for j, lora_layer in enumerate(self_attn.previous_lora_weights_q):
+                    lora_weights_dict[f"decoder.block.{i}.layer.0.SelfAttention.lora_q.lora_A"] = lora_layer.lora_A
+
+                for j, lora_layer in enumerate(self_attn.previous_lora_weights_v):
+                    lora_weights_dict[f"decoder.block.{i}.layer.0.SelfAttention.lora_v.lora_A"] = lora_layer.lora_A
+            self_attn = block.layer[1].EncDecAttention
+            if hasattr(self_attn, "previous_lora_weights_q") and hasattr(self_attn, "previous_lora_weights_v"):
+                for j, lora_layer in enumerate(self_attn.previous_lora_weights_q):
+                    lora_weights_dict[f"decoder.block.{i}.layer.1.SelfAttention.lora_q.lora_A"] = lora_layer.lora_A
+
+                for j, lora_layer in enumerate(self_attn.previous_lora_weights_v):
+                    lora_weights_dict[f"decoder.block.{i}.layer.1.SelfAttention.lora_v.lora_A"] = lora_layer.lora_A
+
+        return lora_weights_dict
 
     def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]]) -> torch.Tensor:
         """
@@ -121,6 +158,15 @@ class Trainer(Seq2SeqTrainer):
             loss = loss.mean()  # mean() to average on multi-gpu parallel training
 
         if self.args.gradient_accumulation_steps > 1 and not self.is_deepspeed_enabled:
+            
+            if self.previous_lora_dict is not None:
+                orthogonal_loss = torch.tensor(0., device=loss.device)
+                for name, param in model.named_parameters():
+                    if "lora_A" in name and name in self.previous_lora_dict:
+                        param_ = self.previous_lora_dict[name]
+                        orthogonal_loss += torch.abs(torch.mm(param_, param.T)).sum()  # [r * dim] * [dim * r]
+                loss = loss + 0.005 * orthogonal_loss
+            
             # deepspeed handles loss scaling by gradient_accumulation_steps in its `backward`
             loss = loss / self.args.gradient_accumulation_steps
         

@@ -1105,15 +1105,19 @@ class T5Stack(T5PreTrainedModel):
         else:
             attn_temperature = math.sqrt(2*self.model_dim)
         
-        attn_scores = prompt_key.bmm(
-            x.transpose(1, 2)) / attn_temperature
+        attn_scores = prompt_key.bmm(x.transpose(1, 2)) / attn_temperature
         # attn_scores = torch.nn.functional.cosine_similarity(
-        #     x,
-        #     prompt_key, dim=-1
-        # ).unsqueeze(2)
-        weights = torch.nn.functional.softmax(attn_scores, dim=1)
-        # if not return_logits:
-        #     print(weights)
+            #     x,
+            #     prompt_key, dim=-1
+            # ).unsqueeze(2)
+        if self.prompt_config["attn_temperature"] != -1:
+            weights = torch.nn.functional.softmax(attn_scores, dim=1)
+            # if not return_logits:
+            #     print(weights)
+        else:
+            weights = torch.ones_like(attn_scores)
+            attn_scores = weights
+        
         if not return_logits:
             return weights  
         else:
