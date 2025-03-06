@@ -189,7 +189,6 @@ for i, learning_rate in enumerate(lrs):
     --lora_alpha {lora_alpha} \
     --lora_dropout {lora_dropout} \
     --add_instruction_replay \
-    --run_single \
     --data_replay_freq -1 \
     --replay_after_n_epoch 0 \
     --kl_ratio {kl_ratio} \

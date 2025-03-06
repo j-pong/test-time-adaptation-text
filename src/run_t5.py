@@ -55,6 +55,9 @@ from cl_trainer import Trainer, DenserEvalCallback, skip_instructions
 from compute_metrics import compute_metrics, compute_grouped_metrics
 from datasets.download import DownloadConfig
 
+import logging
+logging.getLogger("transformers.modeling_utils").setLevel(logging.ERROR)
+
 # off wandb
 os.environ['WANDB_DISABLED'] = "True"
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
