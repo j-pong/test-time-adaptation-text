@@ -165,7 +165,7 @@ class Trainer(Seq2SeqTrainer):
                     if "lora_A" in name and name in self.previous_lora_dict:
                         param_ = self.previous_lora_dict[name]
                         orthogonal_loss += torch.abs(torch.mm(param_, param.T)).sum()  # [r * dim] * [dim * r]
-                loss = loss + 0.005 * orthogonal_loss
+                loss = loss + self.args.lamda_1 * orthogonal_loss
             
             # deepspeed handles loss scaling by gradient_accumulation_steps in its `backward`
             loss = loss / self.args.gradient_accumulation_steps

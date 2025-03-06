@@ -74,10 +74,12 @@ from copy import deepcopy
 num_train_epochs=1
 
 lora_alpha = 32
-method="seqlora"
+method="olora"
+
 if method == "seqlora":
     lora_r = 8
     lora_dropout = 0.1
+    lamda_1=0.0
     
     data_replay_freq = -1
     kl_ratio = 0.
@@ -85,7 +87,7 @@ if method == "seqlora":
 elif method == "olora":
     lora_r = 8
     lora_dropout = 0.1
-    lamda_o=0.005
+    lamda_1=0.5
     
     data_replay_freq = -1
     kl_ratio = 0.
@@ -93,6 +95,7 @@ elif method == "olora":
 elif method == "sapt":
     lora_r = 4
     lora_dropout = 0.
+    lamda_1=0.0
     
     data_replay_freq = 1
     kl_ratio = 0.5
@@ -179,7 +182,8 @@ for i, learning_rate in enumerate(lrs):
     --data_replay_freq -1 \
     --replay_after_n_epoch 0 \
     --kl_ratio {kl_ratio} \
-    --attn_temperature {attn_temperature}
+    --attn_temperature {attn_temperature} \
+    --lamda_1 {lamda_1}
     '''
 
     previous_lora_path_list = []
@@ -232,7 +236,8 @@ for i, learning_rate in enumerate(lrs):
     --data_replay_freq {data_replay_freq} \
     --replay_after_n_epoch 0 \
     --kl_ratio {kl_ratio} \
-    --attn_temperature {attn_temperature}
+    --attn_temperature {attn_temperature} \
+    --lamda_1 {lamda_1}
     '''
         
     sh_str+=rf'''
