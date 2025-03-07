@@ -78,7 +78,7 @@ from copy import deepcopy
 num_train_epochs=1
 
 lora_alpha = 32
-method="seqlora"
+method="olora"
 
 if method == "seqlora":
     lora_r = 8
@@ -222,7 +222,7 @@ for i, learning_rate in enumerate(lrs):
     --task_config_dir configs/{run_name}_configs/{dataset_list[idx+1]} \
     --output_dir logs_and_outputs/{run_name}/outputs/{idx+2}-{dataset_list[idx+1]} \
     --per_device_train_batch_size 4 \
-    --per_device_eval_batch_size 32 \
+    --per_device_eval_batch_size 16 \
     --gradient_accumulation_steps 8 \
     --learning_rate {learning_rate} \
     --num_train_epochs {num_train_epochs}\
