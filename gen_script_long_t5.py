@@ -62,6 +62,8 @@ else:
                  "multirc",
                  "yahoo"] # Order 5
 
+# all_tasks = ["dbpedia", "amazon", "yahoo", "agnews"]
+
 dataset_list = all_tasks
 task_order = ','.join(all_tasks)
 
@@ -75,10 +77,10 @@ import pathlib
 import numpy as np
 from copy import deepcopy
 
-num_train_epochs=1
+num_train_epochs=10
 
 lora_alpha = 32
-method="olora"
+method="sapt"
 
 if method == "seqlora":
     lora_r = 8
