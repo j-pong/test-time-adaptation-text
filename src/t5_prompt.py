@@ -1115,8 +1115,7 @@ class T5Stack(T5PreTrainedModel):
             # if not return_logits:
             #     print(weights)
         else:
-            T = attn_scores.size(1)
-            weights = 1 / T * torch.ones_like(attn_scores)
+            weights = torch.ones_like(attn_scores)
             attn_scores = weights
         
         if not return_logits:

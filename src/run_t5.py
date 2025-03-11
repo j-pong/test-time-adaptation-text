@@ -47,7 +47,6 @@ from transformers.trainer_utils import get_last_checkpoint
 
 from cl_collator import DataCollator
 from cl_dataset import gen_cache_path
-from t5_prompt import T5ForConditionalGeneration
 
 from assets import task_config, lora_state_dict_A, lora_state_dict_B
 
@@ -425,6 +424,11 @@ def main():
         'lora_dropout': model_args.lora_dropout
     }
 
+    if model_args.attn_temperature == -1:
+        from t5_lora import T5ForConditionalGeneration
+    else:
+        from t5_prompt import T5ForConditionalGeneration
+        
     model = T5ForConditionalGeneration.from_pretrained(
         model_args.model_name_or_path,
         prompt_config,
@@ -437,10 +441,11 @@ def main():
 
     model.resize_token_embeddings(len(tokenizer))
 
-    if model_args.load_checkpoint_from:
-        print("----------Loading Previous Query Projection Layer----------")
-        model.encoder.trans_input.load_state_dict(torch.load(model_args.load_checkpoint_from))
-        print("----------Loading Previous Query Projection Layer Done----------")
+    if model_args.attn_temperature != -1:
+        if model_args.load_checkpoint_from:
+            print("----------Loading Previous Query Projection Layer----------")
+            model.encoder.trans_input.load_state_dict(torch.load(model_args.load_checkpoint_from))
+            print("----------Loading Previous Query Projection Layer Done----------")
 
     if model_args.previous_lora_path:
         previous_lora_list = model_args.previous_lora_path.split(',')
