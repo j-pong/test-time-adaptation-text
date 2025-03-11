@@ -98,11 +98,7 @@ class LoRALayer(nn.Module):
         self.reset_parameters()
     
     def reset_parameters(self):
-        # initialize A the same way as the default for nn.Linear and B to zero
-        if self.extend:
-            nn.init.zeros_(self.lora_A)    
-        else:
-            nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
+        nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
         nn.init.zeros_(self.lora_B)
     
     def forward(self, x: torch.Tensor):
