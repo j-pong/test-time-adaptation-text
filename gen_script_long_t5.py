@@ -88,6 +88,7 @@ if method == "inclora":
     
     data_replay_freq = -1
     kl_ratio = 0.
+    lrs=[3e-4]
 elif method == "olora":
     lora_r = 8
     lora_dropout = 0.1
@@ -98,6 +99,7 @@ elif method == "olora":
     
     data_replay_freq = -1
     kl_ratio = 0.
+    lrs=[3e-4]
 elif method == "sapt":
     lora_r = 8
     lora_dropout = 0.
@@ -108,10 +110,10 @@ elif method == "sapt":
         
     data_replay_freq = 1
     kl_ratio = 0.1
+    lrs=[3e-4]
 else:
     raise NotImplementedError
 
-lrs = [1e-3]
 for i, learning_rate in enumerate(lrs):
     gpu_num=i
     run_name = f"temp_{method}_long_ep{num_train_epochs}_lr{learning_rate}"
