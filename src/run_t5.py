@@ -389,7 +389,7 @@ def main():
         data_dir=data_args.data_dir,
         download_config=download_config,
         task_config_dir=data_args.task_config_dir,
-        # cache_dir=data_cache_dir,  # for debug, change dataset size, otherwise open it
+        cache_dir=data_cache_dir,  # for debug, change dataset size, otherwise open it
         max_num_instances_per_task=data_args.max_num_instances_per_task,
         max_num_instances_per_eval_task=data_args.max_num_instances_per_eval_task,
         num_examples=data_args.num_examples
