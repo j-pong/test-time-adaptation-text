@@ -116,7 +116,7 @@ else:
 
 for i, learning_rate in enumerate(lrs):
     gpu_num=i
-    run_name = f"temp_{method}_long_ep{num_train_epochs}_lr{learning_rate}"
+    run_name = f"temp_{method}_long_order{order_idx}_ep{num_train_epochs}_lr{learning_rate}_iter5"
 
     ############# Dataset ##############
     history_config=[]
@@ -172,7 +172,7 @@ for i, learning_rate in enumerate(lrs):
     --output_dir logs_and_outputs/{run_name}/outputs/1-{dataset_list[0]} \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 32 \
-    --gradient_accumulation_steps 8 \
+    --gradient_accumulation_steps 1 \
     --learning_rate {learning_rate} \
     --num_train_epochs {num_train_epochs} \
     --bf16 \
@@ -232,7 +232,7 @@ for i, learning_rate in enumerate(lrs):
     --output_dir logs_and_outputs/{run_name}/outputs/{idx+2}-{dataset_list[idx+1]} \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 16 \
-    --gradient_accumulation_steps 8 \
+    --gradient_accumulation_steps 1 \
     --learning_rate {learning_rate} \
     --num_train_epochs {num_train_epochs}\
     --bf16 \

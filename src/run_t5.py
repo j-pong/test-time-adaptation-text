@@ -288,6 +288,10 @@ class DataTrainingArguments:
         default=True,
         metadata={"help": "whether to preappend definition and few-shot cases before the task input during replay."}
     )
+    repeat_sample: Optional[int] = field(
+        default=4,
+        metadata={"help": "number of in-context positive examples."}
+    )
 
 @dataclass(frozen=False)
 class TrainingArguments(Seq2SeqTrainingArguments):
@@ -322,6 +326,18 @@ class TrainingArguments(Seq2SeqTrainingArguments):
         default=0,
         metadata={"help": "learning rate of the attention module"}
     )
+    
+class RepeatedDataset(torch.utils.data.Dataset):
+    def __init__(self, dataset, repeats):
+        self.dataset = dataset
+        self.repeats = repeats
+        
+    def __len__(self):
+        return len(self.dataset) * self.repeats
+    
+    def __getitem__(self, idx):
+        original_idx = idx // self.repeats
+        return self.dataset[original_idx]
 
 def main():
     # See all possible arguments in src/transformers/training_args.py
@@ -427,7 +443,7 @@ def main():
     if model_args.attn_temperature == -1:
         from t5_lora import T5ForConditionalGeneration
     else:
-        from t5_prompt import T5ForConditionalGeneration
+        from t5_lora_prompt import T5ForConditionalGeneration
         
     model = T5ForConditionalGeneration.from_pretrained(
         model_args.model_name_or_path,
@@ -541,6 +557,7 @@ def main():
         train_dataset = raw_datasets["train"]
         if data_args.max_train_samples is not None:
             train_dataset = train_dataset.select(range(data_args.max_train_samples))
+        train_dataset = RepeatedDataset(train_dataset, repeats=data_args.repeat_sample)
 
     if training_args.do_eval:
         if "validation" not in raw_datasets:

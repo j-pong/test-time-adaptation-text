@@ -1,8 +1,0 @@
-{
-  "Ours_CL": [
-    {
-      "sampling strategy": "full",
-      "dataset name": "lookback_task002_quoref_answer_generation"
-    }
-  ]
-}

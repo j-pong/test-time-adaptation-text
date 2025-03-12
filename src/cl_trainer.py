@@ -117,6 +117,11 @@ class Trainer(Seq2SeqTrainer):
 
         return lora_weights_dict
 
+    def get_train_dataloader(self):
+        dataloader = super().get_train_dataloader()
+        dataloader.shuffle = False
+        return dataloader
+
     def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]]) -> torch.Tensor:
         """
         Perform a training step on a batch of inputs.

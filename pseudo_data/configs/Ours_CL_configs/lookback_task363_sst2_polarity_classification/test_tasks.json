@@ -1,8 +1,0 @@
-{
-  "Ours_CL": [
-    {
-      "sampling strategy": "full",
-      "dataset name": "lookback_task363_sst2_polarity_classification"
-    }
-  ]
-}
