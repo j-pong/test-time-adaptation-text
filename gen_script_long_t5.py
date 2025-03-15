@@ -77,7 +77,8 @@ from copy import deepcopy
 
 num_train_epochs=1
 lora_alpha = 32
-method="olora"
+method="sapt"
+repeat_sample=2
 if method == "inclora":
     lora_r = 8
     lora_dropout = 0.1
@@ -116,7 +117,7 @@ else:
 
 for i, learning_rate in enumerate(lrs):
     gpu_num=i
-    run_name = f"temp_{method}_long_order{order_idx}_ep{num_train_epochs}_lr{learning_rate}_iter5"
+    run_name = f"temp_{method}_long_order{order_idx}_ep{num_train_epochs}_lr{learning_rate}_iter{repeat_sample}"
 
     ############# Dataset ##############
     history_config=[]
@@ -202,7 +203,8 @@ for i, learning_rate in enumerate(lrs):
     --kl_ratio {kl_ratio} \
     --attn_temperature {attn_temperature} \
     --lamda_1 {lamda_1} \
-    --run_single {run_single}
+    --run_single {run_single} \
+    --repeat_sample {repeat_sample}
 
     rm -rf logs_and_outputs/{run_name}/outputs/1-{dataset_list[0]}/checkpoint*
 
@@ -261,7 +263,8 @@ for i, learning_rate in enumerate(lrs):
     --kl_ratio {kl_ratio} \
     --attn_temperature {attn_temperature} \
     --lamda_1 {lamda_1} \
-    --run_single {run_single}
+    --run_single {run_single} \
+    --repeat_sample {repeat_sample}
 
     rm -rf logs_and_outputs/{run_name}/outputs/{idx+2}-{dataset_list[idx+1]}/checkpoint*
     

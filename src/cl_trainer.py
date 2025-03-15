@@ -157,15 +157,16 @@ class Trainer(Seq2SeqTrainer):
         if self.args.gradient_accumulation_steps > 1 and not self.is_deepspeed_enabled:
             
             if self.previous_lora_dict is not None:
-                orthogonal_loss = torch.tensor(0., device=loss.device)
-                for name, param in model.named_parameters():
-                    if "lora_A" in name:
-                        for key in self.previous_lora_dict.keys():
-                            if key in name:
-                                for j, param_ in enumerate(self.previous_lora_dict[key]):
-                                    param_ = param_.lora_A
-                                    orthogonal_loss += torch.abs(torch.mm(param_, param.T)).sum()  # [r * dim] * [dim * r]
-                loss = loss + self.args.lamda_1 * orthogonal_loss
+                if self.args.lamda_1 != 0.0:
+                    orthogonal_loss = torch.tensor(0., device=loss.device)
+                    for name, param in model.named_parameters():
+                        if "lora_A" in name:
+                            for key in self.previous_lora_dict.keys():
+                                if key in name:
+                                    for j, param_ in enumerate(self.previous_lora_dict[key]):
+                                        param_ = param_.lora_A
+                                        orthogonal_loss += torch.abs(torch.mm(param_, param.T)).sum()  # [r * dim] * [dim * r]
+                    loss = loss + self.args.lamda_1 * orthogonal_loss
             
             # deepspeed handles loss scaling by gradient_accumulation_steps in its `backward`
             loss = loss / self.args.gradient_accumulation_steps
