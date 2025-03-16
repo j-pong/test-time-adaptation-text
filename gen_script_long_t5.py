@@ -117,7 +117,7 @@ else:
 
 for i, learning_rate in enumerate(lrs):
     gpu_num=i
-    run_name = f"temp_{method}_long_order{order_idx}_ep{num_train_epochs}_lr{learning_rate}_iter{repeat_sample}"
+    run_name = f"temp_{method}_long_order{order_idx}_ep{num_train_epochs}_lr{learning_rate}_iter{repeat_sample}_replay{data_replay_freq}"
 
     ############# Dataset ##############
     history_config=[]

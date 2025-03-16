@@ -73,7 +73,8 @@ from copy import deepcopy
 
 num_train_epochs=1
 lora_alpha = 32
-method="olora"
+method="sapt"
+repeat_sample=10
 if method == "inclora":
     lora_r = 8
     lora_dropout = 0.1
@@ -110,7 +111,7 @@ else:
 lrs = [1e-4, 3e-4, 5e-4, 7e-4]
 for i, learning_rate in enumerate(lrs):
     gpu_num=i
-    run_name = f"temp_{method}_ep{num_train_epochs}_lr{learning_rate}_gn{gpu_num}"
+    run_name = f"temp_{method}_superni{order_idx}_ep{num_train_epochs}_lr{learning_rate}_iter{repeat_sample}_replay{data_replay_freq}_gn{gpu_num}"
 
     history_config=[]
     for one_data_name in dataset_list:
@@ -188,7 +189,8 @@ for i, learning_rate in enumerate(lrs):
     --kl_ratio {kl_ratio} \
     --attn_temperature {attn_temperature} \
     --lamda_1 {lamda_1} \
-    --run_single {run_single}
+    --run_single {run_single} \
+    --repeat_sample {repeat_sample}
     '''
 
     previous_lora_path_list = []
@@ -243,7 +245,8 @@ for i, learning_rate in enumerate(lrs):
     --kl_ratio {kl_ratio} \
     --attn_temperature {attn_temperature} \
     --lamda_1 {lamda_1} \
-    --run_single {run_single}
+    --run_single {run_single} \
+    --repeat_sample {repeat_sample}
     '''
         
     sh_str+=rf'''
